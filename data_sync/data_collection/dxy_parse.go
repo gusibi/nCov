@@ -1,0 +1,98 @@
+package data_collection
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"strings"
+
+	"github.com/gusibi/nCov/data_sync/models"
+
+	"github.com/PuerkitoBio/goquery"
+)
+
+const (
+	dxyUrl               = "https://3g.dxy.cn/newh5/view/pneumonia"
+	getAreaStat          = "getAreaStat"
+	getStatisticsService = "getStatisticsService"
+	indexRecommendList   = "getIndexRecommendList"
+	getOtherCountryList  = "getListByCountryTypeService2"
+	newsList             = "getTimelineService"
+)
+
+type dxyDataCollection struct {
+	Url string
+}
+
+func NewDxyDataCollection() *dxyDataCollection {
+	return &dxyDataCollection{Url: dxyUrl}
+}
+
+func (ddc *dxyDataCollection) LoadHtml() (*goquery.Document, error) {
+	res, err := http.Get(ddc.Url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	}
+
+	// Load the HTML document
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return doc, err
+}
+
+func (ddc *dxyDataCollection) GetProvinceData(doc *goquery.Document) []models.ProvinceData {
+	dID := fmt.Sprintf("#%s", getAreaStat)
+	areaStatNode := doc.Find(dID)
+	areaStat := areaStatNode.Text()
+	startIndex := strings.Index(areaStat, "[")
+	endIndex := strings.LastIndex(areaStat, "]")
+	areaStat = areaStat[startIndex : endIndex+1]
+	provinceDataList := make([]models.ProvinceData, 0)
+	if err := json.Unmarshal([]byte(areaStat), &provinceDataList); err != nil {
+		log.Fatal("json decode province data error", err)
+	}
+	return provinceDataList
+}
+
+func (ddc *dxyDataCollection) GetCountryData(doc *goquery.Document) []models.CountryData {
+	dID := fmt.Sprintf("#%s", getOtherCountryList)
+	areaStatNode := doc.Find(dID)
+	areaStat := areaStatNode.Text()
+	startIndex := strings.Index(areaStat, "[")
+	endIndex := strings.LastIndex(areaStat, "]")
+	areaStat = areaStat[startIndex : endIndex+1]
+	countryData := make([]models.CountryData, 0)
+	if err := json.Unmarshal([]byte(areaStat), &countryData); err != nil {
+		log.Fatal("json decode country data error", err)
+	}
+	return countryData
+}
+
+func (ddc *dxyDataCollection) GetNewsData(doc *goquery.Document) []models.NewsData {
+	nID := fmt.Sprintf("#%s", newsList)
+	newsNode := doc.Find(nID)
+	newsStat := newsNode.Text()
+	startIndex := strings.Index(newsStat, "[")
+	endIndex := strings.LastIndex(newsStat, "]")
+	newsStat = newsStat[startIndex : endIndex+1]
+	newsData := make([]models.NewsData, 0)
+	if err := json.Unmarshal([]byte(newsStat), &newsData); err != nil {
+		log.Fatal("json decode news data error", err)
+	}
+	return newsData
+}
+
+func (ddc *dxyDataCollection) parseHtml(doc *goquery.Document) {
+	provinceData := ddc.GetProvinceData(doc)
+	fmt.Println(provinceData)
+	countryData := ddc.GetCountryData(doc)
+	fmt.Println(countryData)
+}
