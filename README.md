@@ -26,7 +26,7 @@ http://service-5lpzkj7x-1254035985.bj.apigw.tencentcs.com/release/ncov/news.xml
 
 #### TODO
 
-[ ] 数据更新RSS
-[ ] 数据更新API
-[ ] 数据存储到飞书文档 需要ip 白名单
-[ ] 数据存储到腾讯文档 需要申请 
+* [ ] 数据更新RSS
+* [ ] 数据更新API
+* [ ] 数据存储到飞书文档 需要ip 白名单
+* [ ] 数据存储到腾讯文档 需要申请 
