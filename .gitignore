@@ -60,5 +60,6 @@ coverage.txt
 
 hack/deploy.env
 
-main
 ncov.zip
+main
+api.zip

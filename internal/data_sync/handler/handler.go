@@ -23,7 +23,7 @@ func NewDataSyncHandler(dao d.DataStore) *DataSyncHandler {
 func (dh *DataSyncHandler) StoreNewsData(data []models.NewsData) error {
 	log.Println("start store news data")
 	for _, n := range data {
-		_, err := dh.dao.GetNewsData(n.Title)
+		_, err := dh.dao.GetNewsDataByTitle(n.Title)
 		if err != nil {
 			if e, ok := err.(*errors2.DBError); ok && e.Code == "NotFound" {
 				dh.dao.CreateNewsData(n)

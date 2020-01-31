@@ -18,6 +18,8 @@ type DataStore interface {
 	BatchCreateCityData(provinceName string, data []models.CityData) error
 	UpdateCityDataVersion(cd models.CityDataModel) error
 
-	GetNewsData(title string) (*models.NewsModel, error)
+	GetNewsDataByTitle(title string) (*models.NewsModel, error)
+	GetNewsList() ([]*models.NewsModel, error)
+	GetNewsListByProvince(provinceName string) ([]*models.NewsModel, error)
 	CreateNewsData(data models.NewsData) error
 }
