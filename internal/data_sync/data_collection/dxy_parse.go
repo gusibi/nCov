@@ -17,8 +17,9 @@ const (
 	getAreaStat          = "getAreaStat"
 	getStatisticsService = "getStatisticsService"
 	indexRecommendList   = "getIndexRecommendList"
-	getOtherCountryList  = "getListByCountryTypeService2"
-	newsList             = "getTimelineService"
+	getOtherCountryList  = "getListByCountryTypeService2true"
+	newsList             = "getTimelineService2"
+	newsListCn             = "getTimelineServiceundefined"
 )
 
 type dxyDataCollection struct {
@@ -68,6 +69,7 @@ func (ddc *dxyDataCollection) GetCountryData(doc *goquery.Document) []models2.Co
 	areaStat := areaStatNode.Text()
 	startIndex := strings.Index(areaStat, "[")
 	endIndex := strings.LastIndex(areaStat, "]")
+	fmt.Println(startIndex, endIndex)
 	areaStat = areaStat[startIndex : endIndex+1]
 	countryData := make([]models2.CountryData, 0)
 	if err := json.Unmarshal([]byte(areaStat), &countryData); err != nil {
@@ -76,8 +78,8 @@ func (ddc *dxyDataCollection) GetCountryData(doc *goquery.Document) []models2.Co
 	return countryData
 }
 
-func (ddc *dxyDataCollection) GetNewsData(doc *goquery.Document) []models2.NewsData {
-	nID := fmt.Sprintf("#%s", newsList)
+func (ddc *dxyDataCollection) GetNewsDataByKey(doc *goquery.Document, key string) []models2.NewsData {
+	nID := fmt.Sprintf("#%s", key)
 	newsNode := doc.Find(nID)
 	newsStat := newsNode.Text()
 	startIndex := strings.Index(newsStat, "[")
@@ -86,6 +88,18 @@ func (ddc *dxyDataCollection) GetNewsData(doc *goquery.Document) []models2.NewsD
 	newsData := make([]models2.NewsData, 0)
 	if err := json.Unmarshal([]byte(newsStat), &newsData); err != nil {
 		log.Fatal("json decode news data error", err)
+	}
+	return newsData
+}
+
+func (ddc *dxyDataCollection) GetNewsData(doc *goquery.Document) []models2.NewsData {
+	keys := []string{newsList, newsListCn}
+	newsData := make([]models2.NewsData, 0)
+	for _, key := range keys{
+		news := ddc.GetNewsDataByKey(doc, key)
+		for _, n := range news{
+			newsData = append(newsData, n)
+		}
 	}
 	return newsData
 }
