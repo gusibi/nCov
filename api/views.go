@@ -2,12 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"encoding/xml"
-	"net/http"
-
-	"github.com/gusibi/nCov/internal/tools"
-
+	"github.com/gusibi/nCov/internal/api/handler"
 	d "github.com/gusibi/nCov/internal/dao"
+	"net/http"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -22,34 +19,19 @@ func NewXmlHandler(dao d.DataStore) *XmlHandler {
 
 func (h *XmlHandler) NewsListHandler(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	news, err := h.dao.GetNewsList()
-	items := []rssItem{}
-	for _, new := range news {
-		item := rssItem{
-			Title:       new.Title,
-			Link:        new.SourceUrl,
-			Description: new.Summary,
-			PubDate:     tools.BjTimeStampToBJString(new.PublishedAt, "2006-01-02 15:04:05"),
-			Author:      new.Source,
-		}
-		items = append(items, item)
-	}
-	feed := rss{
-		Version:     "2.0",
-		Description: "全国新型肺炎疫情实时动态播报-数据来自丁香园-https://3g.dxy.cn/newh5/view/pneumonia",
-		Link:        "https://3g.dxy.cn/newh5/view/pneumonia",
-		Title:       "全国新型肺炎疫情实时动态播报",
-		Item:        items,
-	}
-
-	x, err := xml.MarshalIndent(feed, "", "  ")
-	if err != nil {
+	if err != nil{
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	rss, err := handler.NewsRssListByFeed(news)
+	if err!= nil{
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 
 	w.Header().Set("Content-Type", "application/xml")
-	w.Write(x)
+	w.Write(rss)
 }
+
 
 type JsonHandler struct {
 	dao d.DataStore

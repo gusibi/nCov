@@ -1,4 +1,4 @@
-package api
+package handler
 
 type rssItem struct {
 	Title       string `xml:"title"`

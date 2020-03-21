@@ -12,6 +12,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const LIMIT = 100
+
 type DataDao struct {
 	db *gorm.DB
 }
@@ -171,7 +173,7 @@ func (dao *DataDao) GetNewsDataByTitle(title string) (*models.NewsModel, error) 
 
 func (dao *DataDao) GetNewsList() ([]*models.NewsModel, error) {
 	nl := make([]*models.NewsModel, 0)
-	db := dao.db.Order("created_at DESC").Limit(100).Find(&nl)
+	db := dao.db.Order("created_at DESC").Limit(LIMIT).Find(&nl)
 	if db.Error != nil {
 		log.Printf("GetNewsList | get news list error | err=%v\n", db.Error)
 		return nil, dbErr.NewDBError("QueryError", db.Error.Error())
@@ -181,7 +183,7 @@ func (dao *DataDao) GetNewsList() ([]*models.NewsModel, error) {
 
 func (dao *DataDao) GetNewsListByProvince(provinceName string) ([]*models.NewsModel, error) {
 	nl := make([]*models.NewsModel, 0)
-	db := dao.db.Where("province = ?", provinceName).Order("created_at DESC").Limit(100).Find(&nl)
+	db := dao.db.Where("province = ?", provinceName).Order("created_at DESC").Limit(LIMIT).Find(&nl)
 	if db.Error != nil {
 		log.Printf("GetNewsList | get news list error | err=%v\n", db.Error)
 		return nil, dbErr.NewDBError("QueryError", db.Error.Error())

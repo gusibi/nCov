@@ -23,12 +23,26 @@ func TimeStampToString(ts int64, layout string) string {
 	return date.Format(layout)
 }
 
-func BjTimeStampToBJString(ts int64, layout string) string {
+func TimeStampToDate(ts int64) time.Time {
+	// ts 为北京 时区时间戳，需要判断当前时区
+	date := time.Unix(ts, 0)
+	_, offset := time.Now().Zone()
+	date = date.Add(time.Second * time.Duration(offset))
+	return date
+}
+
+func BjTimeStampToDate(ts int64) time.Time {
 	// ts 为北京 时区时间戳，需要判断当前时区
 	date := time.Unix(ts, 0)
 	_, offset := time.Now().Zone()
 	offset = 3600*8 - offset
 	date = date.Add(time.Second * time.Duration(offset))
+	return date
+}
+
+func BjTimeStampToBJString(ts int64, layout string) string {
+	// ts 为北京 时区时间戳，需要判断当前时区
+	date := BjTimeStampToDate(ts)
 	dateStr := date.Format(layout)
 	date, err := ParseBJTime(layout, dateStr)
 	if err != nil {
