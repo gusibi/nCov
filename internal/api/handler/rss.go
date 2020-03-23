@@ -53,7 +53,7 @@ func NewsRssListByFeed(news []*models.NewsModel) ([]byte, error) {
 		}
 		item := &feeds.Item{
 			Id:     fmt.Sprintf("%s/%d", BaseUrl, new.Id),
-			Title:  new.Title,
+			Title:  fmt.Sprintf("#COVID19 %s", new.Title),
 			Author: &feeds.Author{Name: new.Source},
 			Link:   &feeds.Link{Href: getLink(new), Rel: "self"},
 			//Source:      &feeds.Link{Href: getLink(new), Rel: "self"},
